@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'edu.sharif.ce.bpm'
+version '0.1.0'
+
+java {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+}
+
+application {
+    mainClassName 'edu.sharif.ce.bpm.BackendApp'
+}
+
+test {
+    useJUnitPlatform()
+}
