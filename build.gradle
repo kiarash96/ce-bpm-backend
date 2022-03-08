@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'application'
+    id 'org.springframework.boot' version '2.6.2'
 }
 
 group 'edu.sharif.ce.bpm'
@@ -16,11 +16,13 @@ repositories {
 }
 
 dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:2.6.2')
+    implementation platform('org.camunda.bpm:camunda-bom:7.15.0')
 
-}
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp'
 
-application {
-    mainClassName 'edu.sharif.ce.bpm.BackendApp'
+    runtimeClasspath 'mysql:mysql-connector-java'
 }
 
 test {
