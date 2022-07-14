@@ -13,3 +13,12 @@ camunda.bpm:
 
   filter:
     create: All tasks
+
+  webapp:
+    application-path: '/'
+
+spring.web.resources.static-locations:
+  - 'file:src/main/resources/static/'
+  - 'classpath:/static/'
+
+spring.mvc.pathmatch.matching-strategy: ant_path_matcher
