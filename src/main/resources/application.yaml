@@ -17,8 +17,34 @@ camunda.bpm:
   webapp:
     application-path: '/'
 
+  generic-properties:
+    properties:
+      generalResourceWhitelistPattern: '[a-zA-Z0-9\-\.]+'
+
 spring.web.resources.static-locations:
   - 'file:src/main/resources/static/'
   - 'classpath:/static/'
 
 spring.mvc.pathmatch.matching-strategy: ant_path_matcher
+
+bpm.groups:
+  - id: 'students'
+    name: 'دانشجویان'
+
+  - id: 'grad-experts'
+    name: 'کارشناسان تحصیلات تکمیلی'
+
+  - id: 'msc-supervisors'
+    name: 'استادان راهنمای ارشد'
+
+  - id: 'se-group-head'
+    name: 'مدیر گروه نرم‌افزار'
+
+  - id: 'hw-group-head'
+    name: 'مدیر گروه سخت‌افزار'
+
+  - id: 'ai-group-head'
+    name: 'مدیر گروه هوش‌مصنوعی'
+
+  - id: 'it-group-head'
+    name: 'مدیر گروه فناوری اطلاعات'
