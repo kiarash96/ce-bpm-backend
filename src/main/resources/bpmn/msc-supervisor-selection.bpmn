@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_044yk7z" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="msc-supervisor-selection" name="انتخاب استاد راهنما" isExecutable="true">
+    <bpmn:startEvent id="start" name="شروع" camunda:initiator="initiator">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${processStartListener}" event="start" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0lsl5dm</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="Gateway_0eka2jk">
+      <bpmn:incoming>Flow_04drh04</bpmn:incoming>
+      <bpmn:outgoing>Flow_1yr4eco</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ouxh6q</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="select-supervisor-task" name="انتخاب استاد راهنما" camunda:formKey="app:forms/msc-supervisor-selection/select-supervisor/" camunda:assignee="${initiator}">
+      <bpmn:incoming>Flow_0lsl5dm</bpmn:incoming>
+      <bpmn:outgoing>Flow_08tyb7j</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="new-supervisor-review-task" name="تایید استاد راهنمای جدید" camunda:formKey="app:forms/msc-supervisor-selection/new-supervisor-review/" camunda:assignee="${newSupervisor}">
+      <bpmn:incoming>Flow_1y9azwk</bpmn:incoming>
+      <bpmn:incoming>Flow_1f0d2my</bpmn:incoming>
+      <bpmn:outgoing>Flow_04drh04</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="group-head-review-task" name="تایید مدیر گروه" camunda:formKey="app:forms/msc-supervisor-selection/group-head-review/" camunda:assignee="${groupHead}">
+      <bpmn:incoming>Flow_1yr4eco</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hlkcyl</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0r7ti9b">
+      <bpmn:incoming>Flow_1hlkcyl</bpmn:incoming>
+      <bpmn:outgoing>Flow_1boy3fv</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0zovpa1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateThrowEvent id="Event_197votv" name="عدم تایید">
+      <bpmn:incoming>Flow_1boy3fv</bpmn:incoming>
+      <bpmn:incoming>Flow_0mc8hx2</bpmn:incoming>
+      <bpmn:incoming>Flow_1ouxh6q</bpmn:incoming>
+      <bpmn:outgoing>Flow_0l8cd3r</bpmn:outgoing>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:sequenceFlow id="Flow_04drh04" sourceRef="new-supervisor-review-task" targetRef="Gateway_0eka2jk" />
+    <bpmn:sequenceFlow id="Flow_1yr4eco" sourceRef="Gateway_0eka2jk" targetRef="group-head-review-task">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ newSupervisorApproval }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0lsl5dm" sourceRef="start" targetRef="select-supervisor-task" />
+    <bpmn:exclusiveGateway id="Gateway_0ny4a3x" name="دانشجو استاد راهنمای فعلی دارد؟" default="Flow_1y9azwk">
+      <bpmn:incoming>Flow_08tyb7j</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mriphy</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1y9azwk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_08tyb7j" sourceRef="select-supervisor-task" targetRef="Gateway_0ny4a3x" />
+    <bpmn:sequenceFlow id="Flow_1mriphy" name="بله" sourceRef="Gateway_0ny4a3x" targetRef="supervisor-review-task">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.hasVariable("supervisor") == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1y9azwk" name="خیر" sourceRef="Gateway_0ny4a3x" targetRef="new-supervisor-review-task" />
+    <bpmn:exclusiveGateway id="Gateway_0ustxfa">
+      <bpmn:incoming>Flow_1ta6yyr</bpmn:incoming>
+      <bpmn:outgoing>Flow_1f0d2my</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0mc8hx2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1ta6yyr" sourceRef="supervisor-review-task" targetRef="Gateway_0ustxfa" />
+    <bpmn:sequenceFlow id="Flow_1f0d2my" sourceRef="Gateway_0ustxfa" targetRef="new-supervisor-review-task">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ supervisorApproval }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="supervisor-review-task" name="تایید استاد راهنمای فعلی" camunda:formKey="app:forms/msc-supervisor-selection/supervisor-review/" camunda:assignee="${supervisor}">
+      <bpmn:incoming>Flow_1mriphy</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ta6yyr</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="feedback-task" name="بازخورد به دانشجو" camunda:formKey="app:forms/msc-supervisor-selection/feedback/" camunda:assignee="${initiator}">
+      <bpmn:incoming>Flow_04pf0af</bpmn:incoming>
+      <bpmn:outgoing>Flow_1x5qu48</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1iegi9s" name="پایان">
+      <bpmn:incoming>Flow_1x5qu48</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1x5qu48" sourceRef="feedback-task" targetRef="Event_1iegi9s" />
+    <bpmn:sequenceFlow id="Flow_1hlkcyl" sourceRef="group-head-review-task" targetRef="Gateway_0r7ti9b" />
+    <bpmn:sequenceFlow id="Flow_1boy3fv" sourceRef="Gateway_0r7ti9b" targetRef="Event_197votv">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ !groupHeadApproval }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0mc8hx2" sourceRef="Gateway_0ustxfa" targetRef="Event_197votv">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ !supervisorApproval }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1ouxh6q" sourceRef="Gateway_0eka2jk" targetRef="Event_197votv">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ !newSupervisorApproval }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_04kt2np" name="ثبت تغییر استاد راهنما" camunda:delegateExpression="${ selectSupervisorImpl }">
+      <bpmn:incoming>Flow_0zovpa1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0fp32zf</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0zovpa1" sourceRef="Gateway_0r7ti9b" targetRef="Activity_04kt2np">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ groupHeadApproval }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_06qiv9j">
+      <bpmn:incoming>Flow_0fp32zf</bpmn:incoming>
+      <bpmn:incoming>Flow_0l8cd3r</bpmn:incoming>
+      <bpmn:outgoing>Flow_04pf0af</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0fp32zf" sourceRef="Activity_04kt2np" targetRef="Gateway_06qiv9j" />
+    <bpmn:sequenceFlow id="Flow_0l8cd3r" sourceRef="Event_197votv" targetRef="Gateway_06qiv9j" />
+    <bpmn:sequenceFlow id="Flow_04pf0af" sourceRef="Gateway_06qiv9j" targetRef="feedback-task" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="msc-supervisor-selection">
+      <bpmndi:BPMNEdge id="Flow_1ouxh6q_di" bpmnElement="Flow_1ouxh6q">
+        <di:waypoint x="740" y="225" />
+        <di:waypoint x="740" y="120" />
+        <di:waypoint x="982" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mc8hx2_di" bpmnElement="Flow_0mc8hx2">
+        <di:waypoint x="615" y="120" />
+        <di:waypoint x="982" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1boy3fv_di" bpmnElement="Flow_1boy3fv">
+        <di:waypoint x="1000" y="225" />
+        <di:waypoint x="1000" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hlkcyl_di" bpmnElement="Flow_1hlkcyl">
+        <di:waypoint x="910" y="250" />
+        <di:waypoint x="975" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1f0d2my_di" bpmnElement="Flow_1f0d2my">
+        <di:waypoint x="590" y="145" />
+        <di:waypoint x="590" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ta6yyr_di" bpmnElement="Flow_1ta6yyr">
+        <di:waypoint x="490" y="120" />
+        <di:waypoint x="565" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1y9azwk_di" bpmnElement="Flow_1y9azwk">
+        <di:waypoint x="465" y="250" />
+        <di:waypoint x="540" y="250" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="472" y="228" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mriphy_di" bpmnElement="Flow_1mriphy">
+        <di:waypoint x="440" y="225" />
+        <di:waypoint x="440" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="424" y="181" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08tyb7j_di" bpmnElement="Flow_08tyb7j">
+        <di:waypoint x="350" y="250" />
+        <di:waypoint x="415" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lsl5dm_di" bpmnElement="Flow_0lsl5dm">
+        <di:waypoint x="188" y="250" />
+        <di:waypoint x="250" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yr4eco_di" bpmnElement="Flow_1yr4eco">
+        <di:waypoint x="765" y="250" />
+        <di:waypoint x="810" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04drh04_di" bpmnElement="Flow_04drh04">
+        <di:waypoint x="640" y="250" />
+        <di:waypoint x="715" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zovpa1_di" bpmnElement="Flow_0zovpa1">
+        <di:waypoint x="1025" y="250" />
+        <di:waypoint x="1090" y="250" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1013" y="232" width="90" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fp32zf_di" bpmnElement="Flow_0fp32zf">
+        <di:waypoint x="1190" y="250" />
+        <di:waypoint x="1245" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0l8cd3r_di" bpmnElement="Flow_0l8cd3r">
+        <di:waypoint x="1018" y="120" />
+        <di:waypoint x="1270" y="120" />
+        <di:waypoint x="1270" y="225" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04pf0af_di" bpmnElement="Flow_04pf0af">
+        <di:waypoint x="1295" y="250" />
+        <di:waypoint x="1340" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1x5qu48_di" bpmnElement="Flow_1x5qu48">
+        <di:waypoint x="1440" y="250" />
+        <di:waypoint x="1492" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0pca75s_di" bpmnElement="start">
+        <dc:Bounds x="152" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="157" y="208" width="25" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0eka2jk_di" bpmnElement="Gateway_0eka2jk" isMarkerVisible="true">
+        <dc:Bounds x="715" y="225" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ig7jlk_di" bpmnElement="select-supervisor-task">
+        <dc:Bounds x="250" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jf0129_di" bpmnElement="new-supervisor-review-task">
+        <dc:Bounds x="540" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0rmoz15_di" bpmnElement="group-head-review-task">
+        <dc:Bounds x="810" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0r7ti9b_di" bpmnElement="Gateway_0r7ti9b" isMarkerVisible="true">
+        <dc:Bounds x="975" y="225" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_197votv_di" bpmnElement="Event_197votv">
+        <dc:Bounds x="982" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="979" y="78" width="42" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ny4a3x_di" bpmnElement="Gateway_0ny4a3x" isMarkerVisible="true">
+        <dc:Bounds x="415" y="225" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="399" y="285" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ustxfa_di" bpmnElement="Gateway_0ustxfa" isMarkerVisible="true">
+        <dc:Bounds x="565" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1yg2kyt_di" bpmnElement="supervisor-review-task">
+        <dc:Bounds x="390" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ew7oe6_di" bpmnElement="Activity_04kt2np">
+        <dc:Bounds x="1090" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ebvukn_di" bpmnElement="feedback-task">
+        <dc:Bounds x="1340" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1iegi9s_di" bpmnElement="Event_1iegi9s">
+        <dc:Bounds x="1492" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1500" y="275" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_06qiv9j_di" bpmnElement="Gateway_06qiv9j" isMarkerVisible="true">
+        <dc:Bounds x="1245" y="225" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
